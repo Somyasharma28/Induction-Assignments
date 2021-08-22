@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "cloud-assignment1-somya"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-6h9see1u3648"
+s3_prefix = "cloud-assignment1-somya"
+region = "ap-south-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
