@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >-
+  Cloud Assignment 2
+  
+
+Resources:
+#Lambda Functions
+  CloudAssignemnt2Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: CloudAssignemnt2Function-Somya
+      CodeUri: CloudAssignemnt2Function/
+      Description: Lambda for Cloud Assignemnt2
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      Environment:
+        Variables:
+          SenderMail: somya@antstack.io
+      Policies: 
+      - Statement:
+        - Effect: Allow
+          Action: ses:SendEmail
+          Resource: arn:aws:ses:ap-south-1:873102235883:identity/somya@antstack.io
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /sendMail
+            Method: post
+      
+
+         
