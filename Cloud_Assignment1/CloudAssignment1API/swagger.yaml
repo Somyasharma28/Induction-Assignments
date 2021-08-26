@@ -1,0 +1,128 @@
+openapi: "3.0.1"
+info:
+  title: "Swagger API for CloudAssignment1"
+  version: "1.0.6"
+
+paths:
+  /user:
+    get:
+      tags:
+        - user
+      summary: Find user 
+      description: Get method for user API
+      parameters:
+      - in: query
+        name: username
+        required: true
+        schema:
+          type: string
+        description: username value
+      - in: query
+        name: password
+        required: true
+        schema:
+          type: string
+        description: password value
+      x-amazon-apigateway-request-validator: params
+      x-amazon-apigateway-integration:
+        credentials: 
+          Fn::Sub: '${CloudAssignment1Role.Arn}'
+        uri:
+          Fn::Sub: 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CloudAssignemnt1Function1.Arn}/invocations'
+        httpMethod: POST
+        timeoutInMillis: 3000
+        type: "aws_proxy"
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Bad Request   
+    post:
+      tags:
+        - user
+      summary: Create user 
+      description: Post method for user API
+      requestBody:
+        description: Request body input schema for Create User
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      x-amazon-apigateway-request-validator: body
+      x-amazon-apigateway-integration:
+        credentials: 
+          Fn::Sub: '${CloudAssignment1Role.Arn}'
+        uri:
+          Fn::Sub: 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CloudAssignemnt1Function2.Arn}/invocations'
+        httpMethod: POST
+        timeoutInMillis: 3000
+        type: "aws_proxy"
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Bad Request
+      
+
+components:
+  schemas:
+    UserCreate:
+      type: object
+      additionalProperties: false
+      required:
+        - username
+        - password
+        - name 
+        - age
+        - mobileNo
+      properties:
+        username:
+          type: string
+          format: email
+          minLength: 5
+        password:
+          type: string
+          minLength: 8
+        name:
+          type: string
+          minLength: 3
+        age:
+          type: integer
+          minimum: 18
+        mobileNo:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 10
+            maxLength: 10
+        address:
+          type: string
+  
+    
+x-amazon-apigateway-request-validators:
+  body:
+    validateRequestBody : true
+    validateRequestParameters : false
+  params:
+    validateRequestBody : false
+    validateRequestParameters : true
+
+x-amazon-apigateway-gateway-responses:
+  BAD_REQUEST_BODY:
+    responseTemplates:
+      application/json: |
+        {
+          "message": "$context.error.validationErrorString"
+        } 
+  
