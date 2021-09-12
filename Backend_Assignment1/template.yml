@@ -1,0 +1,95 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >-
+  Backend Assignment 1
+  
+
+Resources:
+#Lambda Functions
+  BackendAssignemnt1Function1:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: BackendAssignment1Function1
+      CodeUri: BackendAssignemnt1Function1/
+      Description: Lambda for Backend Assignemnt1
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      Environment:
+        Variables:
+          UrlTable: !Ref BackendAssignemnt1Table
+      Policies:
+        - AWSLambdaDynamoDBExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BackendAssignemnt1Table
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /getShortUrl
+            Method: post
+            RestApiId: !Ref BackendAssignment1API
+      
+  BackendAssignemnt1Function2:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: BackendAssignment1Function2
+      CodeUri: BackendAssignemnt1Function2/
+      Description: Lambda for Backend Assignemnt1
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      Environment:
+        Variables:
+          UrlTable: !Ref BackendAssignemnt1Table
+      Policies:
+        - AWSLambdaDynamoDBExecutionRole
+        - DynamoDBReadPolicy:
+            TableName: !Ref BackendAssignemnt1Table
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /{url}
+            Method: get
+            RestApiId: !Ref BackendAssignment1API
+      
+#Tables
+  BackendAssignemnt1Table:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: BA1Table
+      AttributeDefinitions:
+        - 
+          AttributeName: "longUrl"
+          AttributeType: "S"
+        - 
+          AttributeName: "shortUrl"
+          AttributeType: "S"
+      KeySchema: 
+        - 
+          AttributeName: "longUrl"
+          KeyType: "HASH"
+      ProvisionedThroughput: 
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      GlobalSecondaryIndexes: 
+        - 
+          IndexName: "shortUrlIndex"
+          KeySchema: 
+            - 
+              AttributeName: "shortUrl"
+              KeyType: "HASH"
+          Projection: 
+            ProjectionType: "KEYS_ONLY"
+          ProvisionedThroughput: 
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+
+#API
+  BackendAssignment1API:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: BackendAssignment1API
+      StageName: Dev
+
+
+         

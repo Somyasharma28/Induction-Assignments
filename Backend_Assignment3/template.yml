@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >-
+  Backend Assignment 3
+  
+
+Resources:
+#Lambda Functions
+  BackendAssignemnt3Function1:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: BackendAssignment3Function1
+      CodeUri: BackendAssignemnt3Function1/
+      Description: Lambda for Backend Assignemnt3
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      Environment:
+        Variables:
+          demoTable: !Ref BackendAssignemnt3Table
+      Policies:
+        - AWSLambdaDynamoDBExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BackendAssignemnt3Table
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /user
+            Method: post
+      
+  BackendAssignemnt3Function2:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: BackendAssignment3Function2
+      CodeUri: BackendAssignemnt3Function2/
+      Description: Lambda for Backend Assignemnt1
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      Environment:
+        Variables:
+          demoTable: !Ref BackendAssignemnt3Table
+          snsTopic: !Ref MySNSTopic
+      Policies:
+        - AWSLambdaDynamoDBExecutionRole
+        - DynamoDBReadPolicy:
+            TableName: !Ref BackendAssignemnt3Table
+        - SNSPublishMessagePolicy:
+            TopicName: 
+              Fn::GetAtt:
+                - "MySNSTopic"
+                - "TopicName"
+      Events:
+        CWSchedule:
+          Type: Schedule
+          Properties:
+            Schedule: 'cron(30 4 * * ? *)'
+            Name: TestSchedule
+            Description: test schedule
+            Enabled: true
+
+      
+#Tables
+  BackendAssignemnt3Table:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: BA3Table
+      AttributeDefinitions:
+        - 
+          AttributeName: "id"
+          AttributeType: "S"
+      KeySchema: 
+        - 
+          AttributeName: "id"
+          KeyType: "HASH"
+      ProvisionedThroughput: 
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+
+  MySNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: "somya@antstack.io"
+          Protocol: "email"
+
+
+         

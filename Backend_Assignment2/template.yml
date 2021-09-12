@@ -1,0 +1,121 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >-
+  Backend Assignment 2
+  
+
+Resources:
+
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: ba2-bucket
+      AccessControl: PublicRead
+
+#Lambda Functions
+  BackendAssignemnt2Function1:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: BA2F1
+      CodeUri: BackendAssignemnt2Function1/
+      Description: Lambda for Backend Assignemnt 2
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      Environment:
+        Variables:
+          UrlTable: !Ref BackendAssignemnt2Table
+          imageBucket: !Ref S3Bucket
+      Policies:
+        - AWSLambdaDynamoDBExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BackendAssignemnt2Table
+        - S3WritePolicy:
+            BucketName: !Ref S3Bucket
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /image
+            Method: post
+            RestApiId: !Ref BackendAssignment2API
+      
+  BackendAssignemnt2Function2:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: BA2F2
+      CodeUri: BackendAssignemnt2Function2/
+      Description: Lambda for Backend Assignemnt2
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      Environment:
+        Variables:
+          UrlTable: !Ref BackendAssignemnt2Table
+          imageBucket: !Ref S3Bucket
+      Policies:
+        - AWSLambdaDynamoDBExecutionRole
+        - DynamoDBReadPolicy:
+            TableName: !Ref BackendAssignemnt2Table
+        - S3ReadPolicy:
+            BucketName: !Ref S3Bucket
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /image/{url}
+            Method: get
+            RestApiId: !Ref BackendAssignment2API
+  
+  BackendAssignemnt2Function3:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: BA2F3
+      CodeUri: BackendAssignemnt2Function3/
+      Description: Lambda for Backend Assignemnt2
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      Environment:
+        Variables:
+          UrlTable: !Ref BackendAssignemnt2Table
+          imageBucket: !Ref S3Bucket
+      Policies:
+        - AWSLambdaDynamoDBExecutionRole
+        - DynamoDBReadPolicy:
+            TableName: !Ref BackendAssignemnt2Table
+        - S3ReadPolicy:
+            BucketName: !Ref S3Bucket
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /image/{url}
+            Method: put
+            RestApiId: !Ref BackendAssignment2API
+
+#Tables
+  BackendAssignemnt2Table:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: BA2Table
+      AttributeDefinitions:
+        - 
+          AttributeName: "shortUrl"
+          AttributeType: "S"
+      KeySchema: 
+        - 
+          AttributeName: "shortUrl"
+          KeyType: "HASH"
+      ProvisionedThroughput: 
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+
+#API
+  BackendAssignment2API:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: BA2API
+      StageName: Dev
+      BinaryMediaTypes:
+        - '*/*'
+
+
+         
